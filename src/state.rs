@@ -1,5 +1,5 @@
 use ForthResult;
-use error::Error::UnknownWord;
+use error::Error::{UnknownWord, SyntaxError};
 use stack::Stack;
 use std::result::Result::{Ok, Err};
 use word::Word;
@@ -9,6 +9,7 @@ use word::WordKind::{Builtin, Words};
 pub struct State {
     stack: Stack,
     dict: Vec<Word>,
+    compiling_word: Option<Word>,
 }
 
 impl State {
@@ -16,6 +17,7 @@ impl State {
         State {
             stack: Stack::new(),
             dict: Vec::new(),
+            compiling_word: None,
         }
     }
 
@@ -46,8 +48,45 @@ impl State {
     }
 
     pub fn parse_line(&mut self, line: &str) -> ForthResult {
-        for token in line.split(' ') {
-            try!(self.run_word(token.trim_right_chars('\n')));
+        let mut tokens = line.trim_right_chars('\n').split(' ');
+        loop {
+            let token = match tokens.next() {
+                Some(t) => t,
+                None => break,
+            };
+            match token {
+                ":" => {
+                    match self.compiling_word {
+                        None => {
+                            let command = try!(tokens.next().ok_or(SyntaxError));
+                            self.compiling_word = Some(Word {
+                                command: String::from_str(command),
+                                kind: Words(Vec::new())
+                            });
+                        }
+                        Some(..) => return Err(SyntaxError),
+                    }
+                },
+                ";" => {
+                    match self.compiling_word.take() {
+                        Some(word) => {
+                            self.dict.push(word);
+                        },
+                        None => return Err(SyntaxError),
+                    }
+                },
+                word => {
+                    match self.compiling_word {
+                        Some(ref mut partial_word) => {
+                            match partial_word.kind {
+                                Words(ref mut ws) => ws.push(String::from_str(word)),
+                                _ => panic!("compiling_word not Words kind"),
+                            }
+                        },
+                        None => try!(self.run_word(word)),
+                    }
+                },
+            }
         }
         debug!("stack={}", self.stack);
         Ok(())
