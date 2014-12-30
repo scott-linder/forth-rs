@@ -37,6 +37,11 @@ fn main() {
         println!("{}", x);
         Ok(())
     });
+    builtin!(state : "DUP" box |&: s: &mut Stack| {
+        let x = try!(s.peek().ok_or(StackUnderflow));
+        s.push(x);
+        Ok(())
+    });
     for line in stdin().lock().lines() {
         match line {
             Ok(l) => match state.parse_line(l.as_slice()) {
