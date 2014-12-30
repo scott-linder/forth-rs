@@ -6,15 +6,15 @@ use word::Word;
 use word::WordKind::{Builtin, Words};
 
 #[deriving(Default)]
-pub struct State {
+pub struct Context {
     stack: Stack,
     dict: Vec<Word>,
     compiling_word: Option<Word>,
 }
 
-impl State {
-    pub fn new() -> State {
-        State {
+impl Context {
+    pub fn new() -> Context {
+        Context {
             stack: Stack::new(),
             dict: Vec::new(),
             compiling_word: None,
@@ -32,7 +32,7 @@ impl State {
                 match word.kind {
                     Builtin(ref f) => try!((**f).call((stack,))),
                     Words(ref ws) => for w in ws.iter() {
-                        try!(State::real_run_word(dict, stack, w.as_slice()));
+                        try!(Context::real_run_word(dict, stack, w.as_slice()));
                     },
                 }
                 return Ok(());
@@ -44,7 +44,7 @@ impl State {
     }
 
     pub fn run_word(&mut self, command: &str) -> ForthResult {
-        State::real_run_word(&self.dict, &mut self.stack, command)
+        Context::real_run_word(&self.dict, &mut self.stack, command)
     }
 
     pub fn parse_line(&mut self, line: &str) -> ForthResult {

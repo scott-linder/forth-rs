@@ -8,4 +8,4 @@ pub type ForthResult = result::Result<(), error::Error>;
 pub mod error;
 pub mod word;
 pub mod stack;
-pub mod state;
+pub mod context;
