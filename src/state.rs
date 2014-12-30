@@ -28,7 +28,7 @@ impl State {
         for word in dict.iter() {
             if command == word.command {
                 match word.kind {
-                    Builtin(ref f) => try!((*f)(stack)),
+                    Builtin(ref f) => try!((**f).call((stack,))),
                     Words(ref ws) => for w in ws.iter() {
                         try!(State::real_run_word(dict, stack, w.as_slice()));
                     },
