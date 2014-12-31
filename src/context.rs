@@ -27,19 +27,18 @@ impl Context {
 
     fn real_run_word(dict: &Vec<Word>, stack: &mut Stack,
                      command: &str) -> ForthResult {
-        for word in dict.iter() {
-            if command == word.command {
-                match word.kind {
+        match dict.iter().find(|word| word.command == command) {
+            Some(word) => match word.kind {
                     Builtin(ref f) => try!((**f).call((stack,))),
                     Words(ref ws) => for w in ws.iter() {
                         try!(Context::real_run_word(dict, stack, w.as_slice()));
                     },
-                }
-                return Ok(());
-            }
+            },
+            None => {
+                let i = try!(command.parse().ok_or(UnknownWord));
+                stack.push(i);
+            },
         }
-        let i = try!(command.parse().ok_or(UnknownWord));
-        stack.push(i);
         Ok(())
     }
 
