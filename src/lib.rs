@@ -3,7 +3,7 @@
 
 use std::result;
 
-pub type ForthResult = result::Result<(), error::Error>;
+pub type Result = result::Result<(), error::Error>;
 
 pub mod error;
 pub mod word;

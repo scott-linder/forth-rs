@@ -1,4 +1,4 @@
-use ForthResult;
+use Result;
 use error::Error::{UnknownWord, SyntaxError};
 use stack::Stack;
 use std::result::Result::{Ok, Err};
@@ -26,7 +26,7 @@ impl Context {
     }
 
     fn real_run_word(dict: &Vec<Word>, stack: &mut Stack,
-                     command: &str) -> ForthResult {
+                     command: &str) -> Result {
         match dict.iter().find(|word| word.command == command) {
             Some(word) => match word.kind {
                     Builtin(ref f) => try!((**f).call((stack,))),
@@ -42,11 +42,11 @@ impl Context {
         Ok(())
     }
 
-    pub fn run_word(&mut self, command: &str) -> ForthResult {
+    pub fn run_word(&mut self, command: &str) -> Result {
         Context::real_run_word(&self.dict, &mut self.stack, command)
     }
 
-    pub fn parse_line(&mut self, line: &str) -> ForthResult {
+    pub fn parse_line(&mut self, line: &str) -> Result {
         let mut tokens = line.trim_right_chars('\n').split(' ');
         loop {
             let token = match tokens.next() {

@@ -1,5 +1,5 @@
 use stack::Stack;
-use ForthResult;
+use Result;
 
 pub struct Word {
     pub command: String,
@@ -7,6 +7,6 @@ pub struct Word {
 }
 
 pub enum WordKind {
-    Builtin(Box<Fn(&mut Stack) -> ForthResult + 'static>),
+    Builtin(Box<Fn(&mut Stack) -> Result + 'static>),
     Words(Vec<String>),
 }
