@@ -47,7 +47,7 @@ impl Context {
     }
 
     pub fn parse_line(&mut self, line: &str) -> Result {
-        let mut tokens = line.trim_right_chars('\n').split(' ');
+        let mut tokens = line.trim_right_chars('\n').words();
         loop {
             let token = match tokens.next() {
                 Some(t) => t,
