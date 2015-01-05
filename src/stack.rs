@@ -2,7 +2,7 @@ use std::default::Default;
 
 #[deriving(Default, Show)]
 pub struct Stack {
-    vec: Vec<i64>,
+    pub vec: Vec<i64>,
 }
 
 impl Stack {

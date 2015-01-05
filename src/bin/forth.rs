@@ -5,35 +5,44 @@ extern crate forth;
 use forth::context::Context;
 use forth::dict::Dict;
 use forth::error::Error::StackUnderflow;
-use forth::stack::Stack;
 use forth::word::Word::Builtin;
 use std::borrow::ToOwned;
 use std::io::stdin;
 
+macro_rules! push_builtin {
+    ($dict:ident : $name:expr $func:expr) => {
+        $dict.push_word($name.to_owned(), Builtin($func));
+    }
+}
+
 fn main() {
     let mut dict = Dict::new();
-    dict.push_word("+".to_owned(), Builtin(box |&: s: &mut Stack| {
-        let n1 = try!(s.pop().ok_or(StackUnderflow));
-        let n2 = try!(s.pop().ok_or(StackUnderflow));
-        s.push(n2 + n1);
-        Ok(())
-    }));
-    dict.push_word("-".to_owned(), Builtin(box |&: s: &mut Stack| {
-        let n1 = try!(s.pop().ok_or(StackUnderflow));
-        let n2 = try!(s.pop().ok_or(StackUnderflow));
-        s.push(n2 - n1);
-        Ok(())
-    }));
-    dict.push_word(".".to_owned(), Builtin(box |&: s: &mut Stack| {
-        let n = try!(s.pop().ok_or(StackUnderflow));
+    push_builtin!(dict : "." box |context| {
+        let n = try!(context.stack.pop().ok_or(StackUnderflow));
         print!("{}", n);
         Ok(())
-    }));
-    dict.push_word("DUP".to_owned(), Builtin(box |&: s: &mut Stack| {
-        let n = try!(s.peek().ok_or(StackUnderflow));
-        s.push(n);
+    });
+    push_builtin!(dict : "DUP" box |context| {
+        let n = try!(context.stack.peek().ok_or(StackUnderflow));
+        context.stack.push(n);
         Ok(())
-    }));
+    });
+    push_builtin!(dict : "+" box |context| {
+        let n1 = try!(context.stack.pop().ok_or(StackUnderflow));
+        let n2 = try!(context.stack.pop().ok_or(StackUnderflow));
+        context.stack.push(n2 + n1);
+        Ok(())
+    });
+    push_builtin!(dict : "-" box |context| {
+        let n1 = try!(context.stack.pop().ok_or(StackUnderflow));
+        let n2 = try!(context.stack.pop().ok_or(StackUnderflow));
+        context.stack.push(n2 - n1);
+        Ok(())
+    });
+    push_builtin!(dict : ".s" box |context| {
+        print!("{}", context.stack.vec);
+        Ok(())
+    });
     let mut context = Context::from_dict(dict);
     for line in stdin().lock().lines() {
         match line {

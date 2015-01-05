@@ -11,8 +11,8 @@ use word::Word;
 
 #[deriving(Default)]
 pub struct Context {
-    stack: Stack,
-    dict: Dict,
+    pub stack: Stack,
+    pub dict: Dict,
     compiling: Option<(String, Vec<Rc<Word>>)>,
 }
 
@@ -27,7 +27,7 @@ impl Context {
 
     fn run_word(&mut self, word: Rc<Word>) -> Result {
         match *word {
-            Builtin(ref f) => try!((**f).call((&mut self.stack,))),
+            Builtin(ref f) => try!((**f).call((self,))),
             Words(ref ws) => for w in ws.iter() {
                 try!(self.run_word(w.clone()));
             },
