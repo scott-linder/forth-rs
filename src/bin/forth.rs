@@ -2,46 +2,39 @@
 #[phase(link, plugin)] extern crate log;
 extern crate forth;
 
+use forth::context::Context;
+use forth::dict::Dict;
 use forth::error::Error::StackUnderflow;
 use forth::stack::Stack;
-use forth::context::Context;
-use forth::word::Word;
-use forth::word::WordKind::Builtin;
+use forth::word::Word::Builtin;
+use std::borrow::ToOwned;
 use std::io::stdin;
 
-macro_rules! builtin {
-    ($context:ident : $command:expr $function:expr) => {
-        $context.add_word(Word {
-            command: $command.to_string(),
-            kind: Builtin($function),
-        });
-    }
-}
- 
 fn main() {
-    let mut context = Context::new();
-    builtin!(context : "+" box |&: s: &mut Stack| {
-        let x = try!(s.pop().ok_or(StackUnderflow));
-        let y = try!(s.pop().ok_or(StackUnderflow));
-        s.push(y + x);
+    let mut dict = Dict::new();
+    dict.push_word("+".to_owned(), Builtin(box |&: s: &mut Stack| {
+        let n1 = try!(s.pop().ok_or(StackUnderflow));
+        let n2 = try!(s.pop().ok_or(StackUnderflow));
+        s.push(n2 + n1);
         Ok(())
-    });
-    builtin!(context : "-" box |&: s: &mut Stack| {
-        let x = try!(s.pop().ok_or(StackUnderflow));
-        let y = try!(s.pop().ok_or(StackUnderflow));
-        s.push(y - x);
+    }));
+    dict.push_word("-".to_owned(), Builtin(box |&: s: &mut Stack| {
+        let n1 = try!(s.pop().ok_or(StackUnderflow));
+        let n2 = try!(s.pop().ok_or(StackUnderflow));
+        s.push(n2 - n1);
         Ok(())
-    });
-    builtin!(context : "." box |&: s: &mut Stack| {
-        let x = try!(s.pop().ok_or(StackUnderflow));
-        print!("{}", x);
+    }));
+    dict.push_word(".".to_owned(), Builtin(box |&: s: &mut Stack| {
+        let n = try!(s.pop().ok_or(StackUnderflow));
+        print!("{}", n);
         Ok(())
-    });
-    builtin!(context : "DUP" box |&: s: &mut Stack| {
-        let x = try!(s.peek().ok_or(StackUnderflow));
-        s.push(x);
+    }));
+    dict.push_word("DUP".to_owned(), Builtin(box |&: s: &mut Stack| {
+        let n = try!(s.peek().ok_or(StackUnderflow));
+        s.push(n);
         Ok(())
-    });
+    }));
+    let mut context = Context::from_dict(dict);
     for line in stdin().lock().lines() {
         match line {
             Ok(l) => match context.parse_line(l.as_slice()) {

@@ -1,12 +1,9 @@
-use stack::Stack;
 use Result;
+use stack::Stack;
+use std::rc::Rc;
 
-pub struct Word {
-    pub command: String,
-    pub kind: WordKind,
-}
-
-pub enum WordKind {
+pub enum Word {
     Builtin(Box<Fn(&mut Stack) -> Result + 'static>),
-    Words(Vec<String>),
+    Literal(i64),
+    Words(Vec<Rc<Word>>),
 }

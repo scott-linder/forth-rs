@@ -5,7 +5,8 @@ use std::result;
 
 pub type Result = result::Result<(), error::Error>;
 
-pub mod error;
-pub mod word;
-pub mod stack;
 pub mod context;
+pub mod dict;
+pub mod error;
+pub mod stack;
+pub mod word;
