@@ -1,4 +1,4 @@
-#[deriving(Show, Copy)]
+#[derive(Show, Copy)]
 pub enum Error {
     StackUnderflow,
     UnknownWord,

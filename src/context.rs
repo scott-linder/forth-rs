@@ -9,7 +9,7 @@ use std::result::Result::{Ok, Err};
 use word::Word::{Builtin, Literal, Words};
 use word::Word;
 
-#[deriving(Default)]
+#[derive(Default)]
 pub struct Context {
     pub stack: Stack,
     pub dict: Dict,
@@ -27,7 +27,7 @@ impl Context {
 
     fn run_word(&mut self, word: Rc<Word>) -> Result {
         match *word {
-            Builtin(ref f) => try!((**f).call((self,))),
+            Builtin(ref f) => try!((**f)(self)),
             Words(ref ws) => for w in ws.iter() {
                 try!(self.run_word(w.clone()));
             },

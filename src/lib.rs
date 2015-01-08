@@ -1,5 +1,4 @@
-#![feature(phase, unboxed_closures)]
-#[phase(link, plugin)] extern crate log;
+#[macro_use] extern crate log;
 
 use std::result;
 

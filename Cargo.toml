@@ -7,3 +7,7 @@ authors = ["scott-linder <scott.b.linder@wmich.edu>"]
 [[bin]]
 
 name = "forth"
+
+[dependencies]
+
+log = "0.1.8"

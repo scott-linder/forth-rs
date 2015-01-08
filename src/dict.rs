@@ -7,7 +7,7 @@ struct NamedWord {
     pub word: Rc<Word>,
 }
 
-#[deriving(Default)]
+#[derive(Default)]
 pub struct Dict {
     vec: Vec<NamedWord>,
 }

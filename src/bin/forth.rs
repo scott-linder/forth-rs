@@ -1,5 +1,4 @@
-#![feature(phase, macro_rules)]
-#[phase(link, plugin)] extern crate log;
+#[macro_use] extern crate log;
 extern crate forth;
 
 use forth::context::Context;

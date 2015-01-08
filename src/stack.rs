@@ -1,6 +1,6 @@
 use std::default::Default;
 
-#[deriving(Default, Show)]
+#[derive(Default, Show)]
 pub struct Stack {
     pub vec: Vec<i64>,
 }
